@@ -223,16 +223,11 @@ def do_ip_final(binary_block):
     return ip_txt_str
 
 
-if __name__ == "__main__":
-    binary_str = '0' * 64
-    binary_key = '0' * 64
+def run(binary_str, binary_key):
     l, r = do_ip(binary_str)
     c, d = do_pc_1(binary_key)
 
     # Transform the key
-    # c_post_left_shift = do_left_shift(c, 1)
-    # d_post_left_shift = do_left_shift(d, 1)
-    # pc2 = do_pc_2(c_post_left_shift, d_post_left_shift)
     key_transformed = do_transform(c, d, 1)
 
     # DES Function
@@ -259,4 +254,15 @@ if __name__ == "__main__":
 
     print(f"Left XOR Function: {l_xor_fn}")
     print(f"Round 1: {round_1}")
+
+
+if __name__ == "__main__":
+    binary_str = '0' * 64
+    binary_key = '0' * 64
+    run(binary_str, binary_key)
+
     print("\n\n")
+
+    binary_str = '1' * 64
+    binary_key = '1' * 64
+    run(binary_str, binary_key)
