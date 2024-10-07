@@ -61,12 +61,48 @@ def do_pc_1(binary_key):
     return pc_1_key[:28], pc_1_key[28:]
 
 
+def remove_parity_bits(binary_str: str):
+    str_op_removal = ""
+    for pos, bit in enumerate(binary_str):
+        if (pos + 1) % 8 != 0:  # PEMDAS modulus
+            str_op_removal += bit
+    return str_op_removal
+
+
+# def find_rotation(num_of_rounds: int, decryption: bool == False):
+#     count = 0
+#     if decryption:
+#         single_shift_rounds = [2, 9, 16]
+#         for i in range(1, num_of_rounds + 1):
+#             if i in single_shift_rounds:
+#                 count += 1
+#             else:
+#                 count += 2
+#         return count - 1  # find a better way to skip round 1
+#
+#     # encryption
+#     single_shift_rounds = [1, 2, 9, 16]
+#     for i in range(1, num_of_rounds + 1):
+#         if i in single_shift_rounds:
+#             count += 1
+#         else:
+#             count += 2
+#
+#     return count
+
+
 def do_left_shift(key_subset, num_of_bits_to_rotate: int):
-    return key_subset[num_of_bits_to_rotate:] + key_subset[:num_of_bits_to_rotate]
+    return key_subset[:num_of_bits_to_rotate] + key_subset[num_of_bits_to_rotate:]  # shift left
 
 
 def do_right_shift(key_subset, shift_count: int):
     return key_subset[-shift_count:] + key_subset[:-shift_count]
+
+
+def do_shift(key_subset, shift_count: int, decryption: bool = False):
+    if decryption:
+        return do_right_shift(key_subset, 1) if shift_count in [2, 9, 16] else do_right_shift(key_subset, 2)
+    return do_left_shift(key_subset, 1) if shift_count in [1, 2, 9, 16] else do_left_shift(key_subset, 2)
 
 
 def do_pc_2(c_in, d_in):
@@ -90,10 +126,10 @@ def do_pc_2(c_in, d_in):
     return key_out
 
 
-def do_transform(c_in, d_in, num_of_bits_to_rotate: int):
-    c_out = do_left_shift(c_in, num_of_bits_to_rotate)
-    d_out = do_left_shift(d_in, num_of_bits_to_rotate)
-    return do_pc_2(c_out, d_out)
+# def do_transform(c_in, d_in, num_of_bits_to_rotate: int):
+#     c_out = do_left_shift(c_in, num_of_bits_to_rotate)
+#     d_out = do_left_shift(d_in, num_of_bits_to_rotate)
+#     return do_pc_2(c_out, d_out)
 
 
 def do_e_expansion(binary_block):
@@ -223,46 +259,75 @@ def do_ip_final(binary_block):
     return ip_txt_str
 
 
-def run(binary_str, binary_key):
+# def run(binary_str, binary_key):
+#     l, r = do_ip(binary_str)
+#     c, d = do_pc_1(binary_key)
+#
+#     # Transform the key
+#     key_transformed = do_transform(c, d, 1)
+#
+#     # DES Function
+#     expanded_block = do_e_expansion(r)
+#     e_xor_k = do_xor(expanded_block, binary_key)
+#     s_box_substitution = do_s_box_substitution(e_xor_k)
+#     permuted_block = do_permutation(s_box_substitution)
+#     fn_output = do_fn(r, key_transformed)
+#
+#     l_xor_fn = do_xor(l, fn_output)
+#     round_1 = r, l_xor_fn
+#
+#     print(f"Binary String: {binary_str}")
+#     print(f"Binary Key: {binary_key}")
+#     print(f"IP: {do_ip(binary_str)}")
+#
+#     print(f"PC_1: {do_pc_1(binary_key)}")
+#     print(f"Transformed Key: {key_transformed}")
+#
+#     print(f"Expansion: {expanded_block}")
+#     print(f"Expanded XOR Key: {e_xor_k}")
+#     print(f"S-Box Substitution: {s_box_substitution}")
+#     print(f"Permutation: {permuted_block}")
+#
+#     print(f"Left XOR Function: {l_xor_fn}")
+#     print(f"Round 1: {round_1}")
+
+
+def run_decryption(binary_str, binary_key):
     l, r = do_ip(binary_str)
     c, d = do_pc_1(binary_key)
 
     # Transform the key
-    key_transformed = do_transform(c, d, 1)
-
-    # DES Function
-    expanded_block = do_e_expansion(r)
-    e_xor_k = do_xor(expanded_block, binary_key)
-    s_box_substitution = do_s_box_substitution(e_xor_k)
-    permuted_block = do_permutation(s_box_substitution)
-    fn_output = do_fn(r, key_transformed)
-
-    l_xor_fn = do_xor(l, fn_output)
-    round_1 = r, l_xor_fn
-
-    print(f"Binary String: {binary_str}")
-    print(f"Binary Key: {binary_key}")
-    print(f"IP: {do_ip(binary_str)}")
-
-    print(f"PC_1: {do_pc_1(binary_key)}")
-    print(f"Transformed Key: {key_transformed}")
-
-    print(f"Expansion: {expanded_block}")
-    print(f"Expanded XOR Key: {e_xor_k}")
-    print(f"S-Box Substitution: {s_box_substitution}")
-    print(f"Permutation: {permuted_block}")
-
-    print(f"Left XOR Function: {l_xor_fn}")
-    print(f"Round 1: {round_1}")
 
 
 if __name__ == "__main__":
-    binary_str = '0' * 64
-    binary_key = '0' * 64
-    run(binary_str, binary_key)
+    # binary_str = '0' * 64
+    # binary_key = '0' * 64
+    # run(binary_str, binary_key)
+    #
+    # print("\n\n")
+    #
+    # binary_str = '1' * 64
+    # binary_key = '1' * 64
+    # run(binary_str, binary_key)
 
-    print("\n\n")
+    binary_str = hex_to_binary("0123456789ABCDEF")
+    c, d = do_pc_1(binary_str)
+    print(f"key0: {c + d}")
 
-    binary_str = '1' * 64
-    binary_key = '1' * 64
-    run(binary_str, binary_key)
+    c_in, d_in = c, d
+    for i in range(1, 10):
+        c_in = do_shift(c_in, i)
+        d_in = do_shift(d_in, i)
+
+    print(f"key9: {c_in + d}")
+    print(f"key0 ?== key9: {c + d == c_in + d_in}")
+
+    # print(f"binary_str: {binary_str}, len: {len(binary_str)}")
+    # print(f"key0: {c + d}, len: {len(c + d)}")
+    # c_rotated = [do_shift(c, i) for i in range(16)][0]
+    # d_rotated = [do_shift(d, i) for i in range(16)][0]
+    # # print(f"{c_rotated, d_rotated}")
+    # keyn = c_rotated + d_rotated
+    # print(f"keyn: {keyn}, len: {len(keyn)}")
+    # print(f"keyn == key0: {keyn == c+d}")
+
